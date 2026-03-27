@@ -205,7 +205,13 @@
     background: #135e96;
 }
 
-/* App buttons (Client Center, Guest Requests) */
+/* App buttons (Client Center, Guest Requests)
+   Must beat: .site-main article .entry-content a { text-decoration: underline !important; }
+*/
+.site-main article .entry-content a.gigbuilder-app-button,
+.site-main article li a.gigbuilder-app-button,
+.site-main a.gigbuilder-app-button,
+.entry-content a.gigbuilder-app-button,
 a.gigbuilder-app-button,
 a.gigbuilder-app-button:link,
 a.gigbuilder-app-button:visited,
@@ -214,8 +220,8 @@ a.gigbuilder-app-button:active,
 a.gigbuilder-app-button:focus {
     display: inline-block;
     padding: 0.75em 2em;
-    border: none;
-    border-bottom: none;
+    border: none !important;
+    border-bottom: none !important;
     border-radius: 4px;
     font-size: 1em;
     font-weight: 600;
@@ -227,6 +233,7 @@ a.gigbuilder-app-button:focus {
     box-shadow: none !important;
 }
 
+.site-main article .entry-content a.gigbuilder-app-button:hover,
 a.gigbuilder-app-button:hover {
     background: #135e96;
 }
