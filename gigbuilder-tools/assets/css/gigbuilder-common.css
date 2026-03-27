@@ -1,0 +1,218 @@
+/* Gigbuilder Tools — shared base styles
+ * Uses inherit/currentColor where possible so themes control colors.
+ */
+
+.gigbuilder-widget {
+    width: 100%;
+    margin: 1.5em 0;
+}
+
+.gigbuilder-widget-title {
+    margin: 0 0 1em;
+}
+
+/* Messages */
+.gigbuilder-message {
+    padding: 0.75em 1em;
+    border-radius: 4px;
+    margin-bottom: 1em;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.gigbuilder-message--available {
+    background: rgba(26, 125, 18, 0.12);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.gigbuilder-message--booked {
+    background: rgba(255, 152, 0, 0.12);
+    color: #ff9800;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.gigbuilder-message--success {
+    background: rgba(26, 125, 18, 0.12);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.gigbuilder-message--error {
+    background: rgba(244, 67, 54, 0.12);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* Forms */
+.gigbuilder-form {
+    margin-top: 0.5em;
+}
+
+.gigbuilder-form-title {
+    margin: 0 0 0.75em;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.gigbuilder-widget .gigbuilder-form-fields {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    width: 100%;
+}
+
+@media (max-width: 800px) {
+    .gigbuilder-widget .gigbuilder-form-fields {
+        grid-template-columns: 1fr !important;
+    }
+    .gigbuilder-widget .gigbuilder-field--span-1,
+    .gigbuilder-widget .gigbuilder-field--span-2 {
+        grid-column: span 1 !important;
+    }
+}
+
+.gigbuilder-field--span-1 {
+    grid-column: span 1;
+}
+
+.gigbuilder-field--span-2 {
+    grid-column: span 2;
+}
+
+/* Sections (card-style) */
+.gigbuilder-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1.25em;
+    margin: 0 0 1.25em;
+}
+
+.gigbuilder-section-title {
+    font-size: 1.05em;
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: inherit;
+}
+
+.gigbuilder-section-desc {
+    font-size: 0.9em;
+    opacity: 0.7;
+    margin: 0 0 0.75em;
+    line-height: 1.4;
+}
+
+/* Time selector */
+.gigbuilder-time-selects {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.gigbuilder-time-selects select {
+    width: auto;
+    padding: 0.5em 0.65em;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-size: 1em;
+    background: rgba(255, 255, 255, 0.95);
+    color: #222;
+}
+
+/* Location name (conditional input below select) */
+.gigbuilder-location-name {
+    margin-top: 0.5em;
+}
+
+.gigbuilder-location-name input[type="text"] {
+    width: 100%;
+    padding: 0.5em 0.65em;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.95);
+    color: #222;
+}
+
+/* Fields */
+.gigbuilder-field {
+    margin-bottom: 0;
+}
+
+.gigbuilder-field label {
+    display: block;
+    margin-bottom: 0.3em;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.gigbuilder-field input[type="text"],
+.gigbuilder-field input[type="email"],
+.gigbuilder-field input[type="tel"],
+.gigbuilder-field input[type="number"],
+.gigbuilder-field textarea,
+.gigbuilder-field select {
+    width: 100%;
+    padding: 0.5em 0.65em;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.95);
+    color: #222;
+}
+
+.gigbuilder-field textarea {
+    min-height: 7.5em;
+    resize: vertical;
+}
+
+.gigbuilder-required {
+    color: #f44336;
+}
+
+.gigbuilder-radio-option,
+.gigbuilder-checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    margin-bottom: 0.3em;
+}
+
+.gigbuilder-radio-option label,
+.gigbuilder-checkbox-option label {
+    display: inline;
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+/* Buttons */
+.gigbuilder-button,
+.gigbuilder-submit {
+    display: inline-block;
+    padding: 0.6em 1.5em;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    background: #2271b1;
+    color: #fff;
+}
+
+.gigbuilder-button:hover,
+.gigbuilder-submit:hover {
+    background: #135e96;
+}
+
+/* Submit row */
+.gigbuilder-field--submit {
+    margin-top: 1em;
+}
+
+/* Loading */
+.gigbuilder-loading {
+    padding: 0.5em 0;
+    opacity: 0.7;
+    font-style: italic;
+}

@@ -1,0 +1,399 @@
+Option Public
+Option Declare
+
+Sub Initialize
+    On Error GoTo ErrorHandler
+
+    Dim session As New NotesSession
+    Dim db As NotesDatabase
+    Dim webDoc As NotesDocument
+
+    Set db = session.CurrentDatabase
+    Set webDoc = session.DocumentContext
+
+    ' Read POST body (handle chunked content)
+    Dim body As String
+    body = GetPostBody(webDoc)
+
+    If body = "" Then
+        Call SendResponse("error", "No request body received.", Nothing)
+        Exit Sub
+    End If
+
+    ' Parse JSON
+    Dim nav As NotesJSONNavigator
+    Set nav = session.CreateJSONNavigator(body)
+
+    ' Route by action
+    Dim action As String
+    Dim actionElem As NotesJSONElement
+    Set actionElem = nav.GetElementByName("action", True)
+    If actionElem Is Nothing Then
+        Call SendResponse("error", "Missing action field.", Nothing)
+        Exit Sub
+    End If
+    action = CStr(actionElem.Value)
+
+    Select Case action
+        Case "checkAvailability"
+            Call HandleCheckAvailability(session, db, nav)
+        Case "submitBooking"
+            Call HandleSubmitBooking(session, db, nav)
+        Case Else
+            Call SendResponse("error", "Unknown action: " & action, Nothing)
+    End Select
+
+    Exit Sub
+
+ErrorHandler:
+    Call SendResponse("error", "Server error at line " & CStr(Erl) & ": " & Error$, Nothing)
+    Exit Sub
+End Sub
+
+'----------------------------------------------------------
+' Read POST body, handling chunked request_content fields
+'----------------------------------------------------------
+Function GetPostBody(webDoc As NotesDocument) As String
+    Dim body As String
+    body = CStr(webDoc.GetItemValue("Request_Content")(0))
+
+    ' Check for chunked content
+    Dim i As Integer
+    Dim chunkField As String
+    Dim chunkVal As String
+    i = 0
+    Do
+        chunkField = "request_content_" & Format$(i, "000")
+        If webDoc.HasItem(chunkField) Then
+            chunkVal = CStr(webDoc.GetItemValue(chunkField)(0))
+            If i = 0 Then
+                body = chunkVal
+            Else
+                body = body & chunkVal
+            End If
+            i = i + 1
+        Else
+            Exit Do
+        End If
+    Loop
+
+    GetPostBody = body
+End Function
+
+'----------------------------------------------------------
+' Send a JSON response with status and message
+' Optionally include additional JSON from a navigator
+'----------------------------------------------------------
+Sub SendResponse(status As String, message As String, extraNav As NotesJSONNavigator)
+    Dim session As New NotesSession
+    Dim nav As NotesJSONNavigator
+    Set nav = session.CreateJSONNavigator("")
+
+    Call nav.AppendElement(status, "status")
+    Call nav.AppendElement(message, "message")
+
+    ' If we have extra data (like form definition), we need to build it manually
+    ' The extraNav is used by handlers that build their own full response
+
+    Print "Content-Type: application/json"
+    Print ""
+
+    If extraNav Is Nothing Then
+        Print nav.Stringify()
+    Else
+        Print extraNav.Stringify()
+    End If
+End Sub
+
+'----------------------------------------------------------
+' Check Availability Handler
+'----------------------------------------------------------
+Sub HandleCheckAvailability(session As NotesSession, db As NotesDatabase, requestNav As NotesJSONNavigator)
+    On Error GoTo ErrHandler
+
+    ' Get date from request
+    Dim dateElem As NotesJSONElement
+    Set dateElem = requestNav.GetElementByName("date", True)
+    If dateElem Is Nothing Then
+        Call SendResponse("error", "Missing date field.", Nothing)
+        Exit Sub
+    End If
+    Dim dateStr As String
+    dateStr = CStr(dateElem.Value)
+
+    ' Look up the date in the calendar
+    ' Use a view keyed by date to check for existing bookings
+    Dim view As NotesView
+    Set view = db.GetView("CalendarByDate")
+
+    If view Is Nothing Then
+        Call SendResponse("error", "Calendar view not found.", Nothing)
+        Exit Sub
+    End If
+
+    Dim entry As NotesDocument
+    Set entry = view.GetDocumentByKey(dateStr, True)
+
+    ' Build response
+    Dim responseNav As NotesJSONNavigator
+    Set responseNav = session.CreateJSONNavigator("")
+
+    If Not (entry Is Nothing) Then
+        ' Date is booked
+        Call responseNav.AppendElement("booked", "status")
+
+        ' Get custom message from CRM config, or use default
+        Dim bookedMsg As String
+        bookedMsg = GetConfigValue(db, "BookedMessage")
+        If bookedMsg = "" Then bookedMsg = "Sorry, that date is already booked."
+        Call responseNav.AppendElement(bookedMsg, "message")
+    Else
+        ' Date is available
+        Call responseNav.AppendElement("available", "status")
+
+        ' Get custom message from CRM config, or use default
+        Dim availMsg As String
+        availMsg = GetConfigValue(db, "AvailableMessage")
+        If availMsg = "" Then availMsg = "Great news! This date is available."
+        Call responseNav.AppendElement(availMsg, "message")
+
+        ' Build form definition from CRM config
+        Dim formObj As NotesJSONObject
+        Set formObj = responseNav.AppendObject("form")
+
+        Dim formTitle As String
+        formTitle = GetConfigValue(db, "BookingFormTitle")
+        If formTitle = "" Then formTitle = "Book This Date"
+        Call formObj.AppendElement(formTitle, "title")
+
+        ' Get form fields from CRM configuration
+        Call BuildFormFields(session, db, formObj)
+    End If
+
+    Print "Content-Type: application/json"
+    Print ""
+    Print responseNav.Stringify()
+
+    Exit Sub
+
+ErrHandler:
+    Call SendResponse("error", "Availability check failed at line " & CStr(Erl) & ": " & Error$, Nothing)
+    Exit Sub
+End Sub
+
+'----------------------------------------------------------
+' Submit Booking Handler
+'----------------------------------------------------------
+Sub HandleSubmitBooking(session As NotesSession, db As NotesDatabase, requestNav As NotesJSONNavigator)
+    On Error GoTo ErrHandler
+
+    ' Get required fields
+    Dim dateStr As String
+    dateStr = CStr(requestNav.GetElementByName("date").Value)
+
+    Dim ip As String
+    ip = CStr(requestNav.GetElementByName("ip").Value)
+
+    ' Create the booking request document
+    Dim doc As NotesDocument
+    Set doc = db.CreateDocument()
+    doc.Form = "BookingRequest"
+
+    Call doc.ReplaceItemValue("RequestDate", dateStr)
+    Call doc.ReplaceItemValue("RemoteIP", ip)
+    Call doc.ReplaceItemValue("Source", "WordPress")
+
+    ' Set creation timestamp
+    Dim dt As New NotesDateTime("")
+    Call dt.SetNow
+    Call doc.ReplaceItemValue("CreatedDate", dt)
+
+    ' Process answers array
+    Dim answersElem As NotesJSONElement
+    Set answersElem = requestNav.GetElementByName("answers", True)
+    If Not (answersElem Is Nothing) Then
+        Dim answersArr As NotesJSONArray
+        Set answersArr = answersElem.Value
+
+        Dim answerEl As NotesJSONElement
+        Set answerEl = answersArr.GetFirstElement()
+        While Not (answerEl Is Nothing)
+            Dim answerObj As NotesJSONObject
+            Set answerObj = answerEl.Value
+
+            Dim fieldName As String
+            fieldName = CStr(answerObj.GetElementByName("name").Value)
+
+            Dim fieldValue As String
+            fieldValue = CStr(answerObj.GetElementByName("value").Value)
+
+            ' Store each answer as a field on the document
+            Call doc.ReplaceItemValue("WP_" & fieldName, fieldValue)
+
+            Set answerEl = answersArr.GetNextElement(answerEl)
+        Wend
+    End If
+
+    Call doc.Save(True, False)
+
+    ' Build success response
+    Dim responseNav As NotesJSONNavigator
+    Set responseNav = session.CreateJSONNavigator("")
+    Call responseNav.AppendElement("success", "status")
+
+    Dim successMsg As String
+    successMsg = GetConfigValue(db, "BookingSuccessMessage")
+    If successMsg = "" Then successMsg = "Your request has been submitted!"
+    Call responseNav.AppendElement(successMsg, "message")
+
+    Print "Content-Type: application/json"
+    Print ""
+    Print responseNav.Stringify()
+
+    Exit Sub
+
+ErrHandler:
+    Call SendResponse("error", "Booking submission failed at line " & CStr(Erl) & ": " & Error$, Nothing)
+    Exit Sub
+End Sub
+
+'----------------------------------------------------------
+' Get a configuration value from a CRM config document
+'----------------------------------------------------------
+Function GetConfigValue(db As NotesDatabase, key As String) As String
+    On Error Resume Next
+    Dim view As NotesView
+    Set view = db.GetView("ConfigByKey")
+    If view Is Nothing Then
+        GetConfigValue = ""
+        Exit Function
+    End If
+
+    Dim doc As NotesDocument
+    Set doc = view.GetDocumentByKey(key, True)
+    If doc Is Nothing Then
+        GetConfigValue = ""
+        Exit Function
+    End If
+
+    GetConfigValue = CStr(doc.GetItemValue("Value")(0))
+End Function
+
+'----------------------------------------------------------
+' Build form fields array from CRM form configuration
+' This reads the form field definitions stored in the CRM
+' and adds them as a JSON array to the form object
+'----------------------------------------------------------
+Sub BuildFormFields(session As NotesSession, db As NotesDatabase, formObj As NotesJSONObject)
+    On Error GoTo ErrHandler
+
+    Dim fieldsArr As NotesJSONArray
+    Set fieldsArr = formObj.AppendArray("fields")
+
+    ' Read form field config docs from a view sorted by display order
+    Dim view As NotesView
+    Set view = db.GetView("BookingFormFields")
+
+    If view Is Nothing Then
+        ' Fallback: add a basic name + email form
+        Call AddDefaultFields(fieldsArr)
+        Exit Sub
+    End If
+
+    Dim doc As NotesDocument
+    Set doc = view.GetFirstDocument()
+
+    If doc Is Nothing Then
+        Call AddDefaultFields(fieldsArr)
+        Exit Sub
+    End If
+
+    While Not (doc Is Nothing)
+        Dim fieldObj As NotesJSONObject
+        Set fieldObj = fieldsArr.AppendObject()
+
+        Call fieldObj.AppendElement(CStr(doc.GetItemValue("FieldType")(0)), "type")
+        Call fieldObj.AppendElement(CStr(doc.GetItemValue("FieldSubType")(0)), "subType")
+        Call fieldObj.AppendElement(CStr(doc.GetItemValue("FieldName")(0)), "name")
+        Call fieldObj.AppendElement(CStr(doc.GetItemValue("FieldLabel")(0)), "label")
+        Call fieldObj.AppendElement(CStr(doc.GetItemValue("FieldPlaceholder")(0)), "placeholder")
+
+        ' Required field — stored as "1" or "0" in the CRM
+        Dim reqVal As String
+        reqVal = CStr(doc.GetItemValue("FieldRequired")(0))
+        If reqVal = "1" Or LCase$(reqVal) = "yes" Then
+            Call fieldObj.AppendElement(True, "required")
+        Else
+            Call fieldObj.AppendElement(False, "required")
+        End If
+
+        ' Values for select/radio/checkbox — stored as multi-value field
+        Dim valuesArr As NotesJSONArray
+        Set valuesArr = fieldObj.AppendArray("values")
+        Dim vals As Variant
+        vals = doc.GetItemValue("FieldValues")
+        If vals(0) <> "" Then
+            ForAll v In vals
+                Call valuesArr.AppendElement(CStr(v))
+            End ForAll
+        End If
+
+        Set doc = view.GetNextDocument(doc)
+    Wend
+
+    Exit Sub
+
+ErrHandler:
+    ' On error, fall back to default fields
+    Call AddDefaultFields(fieldsArr)
+    Exit Sub
+End Sub
+
+'----------------------------------------------------------
+' Add default form fields as fallback
+'----------------------------------------------------------
+Sub AddDefaultFields(fieldsArr As NotesJSONArray)
+    Dim f1 As NotesJSONObject
+    Set f1 = fieldsArr.AppendObject()
+    Call f1.AppendElement("input", "type")
+    Call f1.AppendElement("text", "subType")
+    Call f1.AppendElement("firstName", "name")
+    Call f1.AppendElement("Your First Name", "label")
+    Call f1.AppendElement("i.e. Sam", "placeholder")
+    Call f1.AppendElement(True, "required")
+    Dim v1 As NotesJSONArray
+    Set v1 = f1.AppendArray("values")
+
+    Dim f2 As NotesJSONObject
+    Set f2 = fieldsArr.AppendObject()
+    Call f2.AppendElement("input", "type")
+    Call f2.AppendElement("text", "subType")
+    Call f2.AppendElement("lastName", "name")
+    Call f2.AppendElement("Your Last Name", "label")
+    Call f2.AppendElement("", "placeholder")
+    Call f2.AppendElement(True, "required")
+    Dim v2 As NotesJSONArray
+    Set v2 = f2.AppendArray("values")
+
+    Dim f3 As NotesJSONObject
+    Set f3 = fieldsArr.AppendObject()
+    Call f3.AppendElement("input", "type")
+    Call f3.AppendElement("email", "subType")
+    Call f3.AppendElement("email", "name")
+    Call f3.AppendElement("Email Address", "label")
+    Call f3.AppendElement("you@example.com", "placeholder")
+    Call f3.AppendElement(True, "required")
+    Dim v3 As NotesJSONArray
+    Set v3 = f3.AppendArray("values")
+
+    Dim f4 As NotesJSONObject
+    Set f4 = fieldsArr.AppendObject()
+    Call f4.AppendElement("input", "type")
+    Call f4.AppendElement("phone", "subType")
+    Call f4.AppendElement("phone", "name")
+    Call f4.AppendElement("Phone Number", "label")
+    Call f4.AppendElement("(555) 123-4567", "placeholder")
+    Call f4.AppendElement(True, "required")
+    Dim v4 As NotesJSONArray
+    Set v4 = f4.AppendArray("values")
+End Sub
