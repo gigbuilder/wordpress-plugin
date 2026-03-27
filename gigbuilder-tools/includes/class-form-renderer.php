@@ -51,7 +51,7 @@ class Gigbuilder_Form_Renderer {
                     $html .= '<div class="gigbuilder-section">';
                     $html .= '<div class="gigbuilder-section-title">' . esc_html( $group['label'] ) . '</div>';
                     if ( ! empty( $group['description'] ) ) {
-                        $html .= '<p class="gigbuilder-section-desc">' . $group['description'] . '</p>';
+                        $html .= '<p class="gigbuilder-section-desc">' . wp_kses_post( $group['description'] ) . '</p>';
                     }
                 }
 

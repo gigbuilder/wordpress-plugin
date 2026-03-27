@@ -21,10 +21,17 @@ class Gigbuilder_API_Client {
             );
         }
 
+        $headers = array(
+            'Content-Type' => 'application/json',
+        );
+
+        $auth_hash = Gigbuilder_Settings::get_setting( 'auth_hash' );
+        if ( ! empty( $auth_hash ) ) {
+            $headers['Authorization'] = 'Basic ' . $auth_hash;
+        }
+
         $response = wp_remote_post( $url, array(
-            'headers' => array(
-                'Content-Type' => 'application/json',
-            ),
+            'headers' => $headers,
             'body'    => wp_json_encode( $payload ),
             'timeout' => 30,
         ) );
@@ -42,7 +49,7 @@ class Gigbuilder_API_Client {
         if ( $code < 200 || $code >= 300 ) {
             return new WP_Error(
                 'gigbuilder_http_error',
-                'CRM returned HTTP ' . $code
+                'CRM returned HTTP ' . $code . ' | Body: ' . substr( $body, 0, 300 )
             );
         }
 
@@ -51,7 +58,7 @@ class Gigbuilder_API_Client {
         if ( json_last_error() !== JSON_ERROR_NONE ) {
             return new WP_Error(
                 'gigbuilder_json_error',
-                'Invalid JSON response from CRM'
+                'Invalid JSON response from CRM | Raw: ' . substr( $body, 0, 300 )
             );
         }
 

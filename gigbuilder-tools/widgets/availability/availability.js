@@ -8,6 +8,22 @@
         var widget = document.getElementById( 'gigbuilder-availability' );
         if ( ! widget ) return;
 
+        // Check if already booked this session
+        var booked = sessionStorage.getItem( 'gigbuilder_booked' );
+        if ( booked ) {
+            try {
+                var info = JSON.parse( booked );
+                widget.innerHTML = '<div class="gigbuilder-message gigbuilder-message--success">' + info.message + '</div>'
+                    + '<p class="gigbuilder-booked-date"><strong>' + info.date + '</strong></p>';
+            } catch(e) {
+                sessionStorage.removeItem( 'gigbuilder_booked' );
+            }
+            if ( booked && widget.querySelector( '.gigbuilder-booked-date' ) ) return;
+        }
+
+        // No active booking — show the date picker
+        widget.querySelector( '.gigbuilder-date-picker' ).style.display = '';
+
         var config        = window.gigbuilderAvailability || {};
         var checkBtn      = widget.querySelector( '.gigbuilder-check-btn' );
         var messageEl     = widget.querySelector( '.gigbuilder-message' );
@@ -49,24 +65,27 @@
             yearSelect.appendChild( opt );
         }
 
-        // Toggle date mode
-        for ( var i = 0; i < modeRadios.length; i++ ) {
-            modeRadios[i].addEventListener( 'change', function() {
-                if ( this.value === 'calendar' ) {
-                    calendarWrap.style.display = '';
-                    dropdownWrap.style.display = 'none';
-                } else {
-                    calendarWrap.style.display = 'none';
-                    dropdownWrap.style.display = '';
-                }
-            });
+        // Toggle date mode (only if calendar variant)
+        if ( modeRadios.length > 0 ) {
+            for ( var i = 0; i < modeRadios.length; i++ ) {
+                modeRadios[i].addEventListener( 'change', function() {
+                    if ( this.value === 'calendar' ) {
+                        calendarWrap.style.display = '';
+                        dropdownWrap.style.display = 'none';
+                    } else {
+                        calendarWrap.style.display = 'none';
+                        dropdownWrap.style.display = '';
+                    }
+                });
+            }
         }
 
         /**
          * Get the selected date in MM/DD/YYYY format.
          */
         function getSelectedDate() {
-            var mode = widget.querySelector( 'input[name="gb-date-mode"]:checked' ).value;
+            var modeEl = widget.querySelector( 'input[name="gb-date-mode"]:checked' );
+            var mode = modeEl ? modeEl.value : 'dropdowns';
 
             if ( mode === 'calendar' ) {
                 var val = document.getElementById( 'gb-date-calendar' ).value;
@@ -244,7 +263,19 @@
                         }
 
                         var data = response.data;
-                        GigbuilderTools.showMessage( messageEl, data.status, data.message );
+
+                        if ( data.status === 'success' ) {
+                            // Lock the widget — hide everything, show success
+                            var dateDisplay = formatDate( date );
+                            sessionStorage.setItem( 'gigbuilder_booked', JSON.stringify({
+                                date: dateDisplay,
+                                message: data.message
+                            }) );
+                            widget.innerHTML = '<div class="gigbuilder-message gigbuilder-message--success">' + data.message + '</div>'
+                                + '<p class="gigbuilder-booked-date"><strong>' + dateDisplay + '</strong></p>';
+                        } else {
+                            GigbuilderTools.showMessage( messageEl, data.status, data.message );
+                        }
                     })
                     .catch( function() {
                         loadingEl.style.display = 'none';
