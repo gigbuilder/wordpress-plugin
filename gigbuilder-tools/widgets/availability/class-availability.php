@@ -64,40 +64,16 @@ class Gigbuilder_Availability {
 
     public static function render_shortcode( $atts ) {
         $atts = shortcode_atts( array(
-            'title'       => 'Check Availability',
-            'button_text' => 'Check Date',
+            'title'       => __( 'Check Availability', 'gigbuilder-tools' ),
+            'button_text' => __( 'Check Date', 'gigbuilder-tools' ),
         ), $atts, 'gigbuilder_availability' );
 
         ob_start();
         ?>
         <div class="gigbuilder-widget gigbuilder-availability" id="gigbuilder-availability">
             <div class="gigbuilder-date-picker" style="display:none;">
-                <!-- Calendar input -->
-                <div class="gigbuilder-date-mode">
-                    <label>
-                        <input type="radio" name="gb-date-mode" value="calendar" checked />
-                        Calendar
-                    </label>
-                    <label>
-                        <input type="radio" name="gb-date-mode" value="dropdowns" />
-                        Select Date
-                    </label>
-                </div>
-
                 <div class="gigbuilder-date-calendar">
                     <input type="date" id="gb-date-calendar" class="gigbuilder-input" />
-                </div>
-
-                <div class="gigbuilder-date-dropdowns" style="display:none;">
-                    <select id="gb-date-month" class="gigbuilder-input">
-                        <option value="">Month</option>
-                    </select>
-                    <select id="gb-date-day" class="gigbuilder-input">
-                        <option value="">Day</option>
-                    </select>
-                    <select id="gb-date-year" class="gigbuilder-input">
-                        <option value="">Year</option>
-                    </select>
                 </div>
 
                 <button type="button" class="gigbuilder-button gigbuilder-check-btn">
@@ -117,7 +93,7 @@ class Gigbuilder_Availability {
 
     public static function render_datepicker_shortcode( $atts ) {
         $atts = shortcode_atts( array(
-            'button_text' => 'Check Date',
+            'button_text' => __( 'Check Date', 'gigbuilder-tools' ),
         ), $atts, 'gigbuilder_datepicker' );
 
         ob_start();
@@ -153,12 +129,12 @@ class Gigbuilder_Availability {
 
     public static function render_clientcenter_shortcode( $atts ) {
         $atts = shortcode_atts( array(
-            'text' => 'Client Center',
+            'text' => __( 'Client Center', 'gigbuilder-tools' ),
         ), $atts, 'gigbuilder_clientcenter' );
 
         $url = Gigbuilder_Settings::get_app_url( 'client.html' );
         if ( empty( $url ) ) {
-            return '<p class="gigbuilder-not-configured">Gigbuilder Tools is not configured.</p>';
+            return '<p class="gigbuilder-not-configured">' . esc_html__( 'Gigbuilder Tools is not configured.', 'gigbuilder-tools' ) . '</p>';
         }
 
         return '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener" class="gigbuilder-app-button">'
@@ -167,12 +143,12 @@ class Gigbuilder_Availability {
 
     public static function render_guestrequests_shortcode( $atts ) {
         $atts = shortcode_atts( array(
-            'text' => 'Guest Requests',
+            'text' => __( 'Guest Requests', 'gigbuilder-tools' ),
         ), $atts, 'gigbuilder_guestrequests' );
 
         $url = Gigbuilder_Settings::get_app_url( 'guestmusic.html' );
         if ( empty( $url ) ) {
-            return '<p class="gigbuilder-not-configured">Gigbuilder Tools is not configured.</p>';
+            return '<p class="gigbuilder-not-configured">' . esc_html__( 'Gigbuilder Tools is not configured.', 'gigbuilder-tools' ) . '</p>';
         }
 
         return '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener" class="gigbuilder-app-button">'
@@ -184,12 +160,12 @@ class Gigbuilder_Availability {
 
         $date = sanitize_text_field( $_POST['date'] ?? '' );
         if ( empty( $date ) ) {
-            wp_send_json_error( array( 'message' => 'Please select a date.' ) );
+            wp_send_json_error( array( 'message' => __( 'Please select a date.', 'gigbuilder-tools' ) ) );
         }
 
         // Validate MM/DD/YYYY format
         if ( ! preg_match( '/^\d{1,2}\/\d{1,2}\/\d{4}$/', $date ) ) {
-            wp_send_json_error( array( 'message' => 'Invalid date format.' ) );
+            wp_send_json_error( array( 'message' => __( 'Invalid date format.', 'gigbuilder-tools' ) ) );
         }
 
         $result = Gigbuilder_API_Client::check_availability( $date );
@@ -213,7 +189,7 @@ class Gigbuilder_Availability {
         $answers = json_decode( wp_unslash( $_POST['answers'] ?? '[]' ), true );
 
         if ( empty( $date ) || empty( $answers ) ) {
-            wp_send_json_error( array( 'message' => 'Missing required fields.' ) );
+            wp_send_json_error( array( 'message' => __( 'Missing required fields.', 'gigbuilder-tools' ) ) );
         }
 
         $ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( $_SERVER['REMOTE_ADDR'] ) : '0.0.0.0';

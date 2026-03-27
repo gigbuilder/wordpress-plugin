@@ -68,7 +68,7 @@ class Gigbuilder_Form_Renderer {
         }
 
         $html .= '<div class="gigbuilder-field gigbuilder-field--submit">';
-        $html .= '<button type="submit" class="gigbuilder-submit">Submit</button>';
+        $html .= '<button type="submit" class="gigbuilder-submit">' . esc_html__( 'Submit', 'gigbuilder-tools' ) . '</button>';
         $html .= '</div>';
         $html .= '</form>';
 
@@ -153,7 +153,7 @@ class Gigbuilder_Form_Renderer {
                     $html .= ' required';
                 }
                 $html .= '>';
-                $html .= '<option value="">— Select —</option>';
+                $html .= '<option value="">' . esc_html__( '— Select —', 'gigbuilder-tools' ) . '</option>';
                 foreach ( $values as $val ) {
                     $parts = self::parse_value( $val );
                     $selected = ( $default !== '' && $parts['value'] === $default ) ? ' selected' : '';
@@ -200,7 +200,7 @@ class Gigbuilder_Form_Renderer {
 
                 // Hour
                 $html .= '<select id="' . esc_attr( $field_id ) . '-hour" onchange="GigbuilderTools.updateTimeField(\'' . esc_attr( $field_id ) . '\')">';
-                $html .= '<option value="">Hr</option>';
+                $html .= '<option value="">' . esc_html__( 'Hr', 'gigbuilder-tools' ) . '</option>';
                 for ( $h = 1; $h <= 12; $h++ ) {
                     $hval = (string) $h;
                     $sel = ( $def_hour !== '' && intval( $def_hour ) === $h ) ? ' selected' : '';
@@ -210,7 +210,7 @@ class Gigbuilder_Form_Renderer {
 
                 // Minute
                 $html .= '<select id="' . esc_attr( $field_id ) . '-min" onchange="GigbuilderTools.updateTimeField(\'' . esc_attr( $field_id ) . '\')">';
-                $html .= '<option value="">Min</option>';
+                $html .= '<option value="">' . esc_html__( 'Min', 'gigbuilder-tools' ) . '</option>';
                 for ( $m = 0; $m < 60; $m += 5 ) {
                     $mval = str_pad( $m, 2, '0', STR_PAD_LEFT );
                     $sel = ( $def_min !== '' && $mval === $def_min ) ? ' selected' : '';
@@ -234,7 +234,7 @@ class Gigbuilder_Form_Renderer {
                     $html .= ' required';
                 }
                 $html .= '>';
-                $html .= '<option value="">— Select —</option>';
+                $html .= '<option value="">' . esc_html__( '— Select —', 'gigbuilder-tools' ) . '</option>';
                 foreach ( $values as $val ) {
                     $parts = self::parse_value( $val );
                     $selected = ( $default !== '' && $parts['value'] === $default ) ? ' selected' : '';
@@ -264,25 +264,25 @@ class Gigbuilder_Form_Renderer {
 
                 // Hours
                 $html .= '<select id="' . esc_attr( $field_id ) . '-hour" onchange="GigbuilderTools.updateDurationField(\'' . esc_attr( $field_id ) . '\')">';
-                $html .= '<option value="">Hrs</option>';
+                $html .= '<option value="">' . esc_html__( 'Hrs', 'gigbuilder-tools' ) . '</option>';
                 for ( $h = 1; $h <= 24; $h++ ) {
                     $hval = (string) $h;
                     $sel = ( $def_dhour !== '' && intval( $def_dhour ) === $h ) ? ' selected' : '';
                     $html .= '<option value="' . $hval . '"' . $sel . '>' . $hval . '</option>';
                 }
                 $html .= '</select>';
-                $html .= '<span>hrs</span>';
+                $html .= '<span>' . esc_html__( 'hrs', 'gigbuilder-tools' ) . '</span>';
 
                 // Minutes
                 $html .= '<select id="' . esc_attr( $field_id ) . '-min" onchange="GigbuilderTools.updateDurationField(\'' . esc_attr( $field_id ) . '\')">';
-                $html .= '<option value="">Min</option>';
+                $html .= '<option value="">' . esc_html__( 'Min', 'gigbuilder-tools' ) . '</option>';
                 for ( $m = 0; $m < 60; $m += 5 ) {
                     $mval = str_pad( $m, 2, '0', STR_PAD_LEFT );
                     $sel = ( $def_dmin !== '' && $mval === $def_dmin ) ? ' selected' : '';
                     $html .= '<option value="' . $mval . '"' . $sel . '>' . $mval . '</option>';
                 }
                 $html .= '</select>';
-                $html .= '<span>min</span>';
+                $html .= '<span>' . esc_html__( 'min', 'gigbuilder-tools' ) . '</span>';
 
                 $html .= '</div>';
                 break;

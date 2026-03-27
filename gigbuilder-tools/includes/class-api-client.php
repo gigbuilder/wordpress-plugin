@@ -17,7 +17,7 @@ class Gigbuilder_API_Client {
         if ( empty( $url ) ) {
             return new WP_Error(
                 'gigbuilder_not_configured',
-                'Gigbuilder Tools is not configured. Please set the Server URL and Database Path in Settings.'
+                __( 'Gigbuilder Tools is not configured. Please authenticate in Settings.', 'gigbuilder-tools' )
             );
         }
 
@@ -39,7 +39,7 @@ class Gigbuilder_API_Client {
         if ( is_wp_error( $response ) ) {
             return new WP_Error(
                 'gigbuilder_connection_error',
-                'Could not connect to Gigbuilder CRM: ' . $response->get_error_message()
+                /* translators: %s: error message from server */ sprintf( __( 'Could not connect to Gigbuilder CRM: %s', 'gigbuilder-tools' ), $response->get_error_message() )
             );
         }
 
@@ -49,7 +49,7 @@ class Gigbuilder_API_Client {
         if ( $code < 200 || $code >= 300 ) {
             return new WP_Error(
                 'gigbuilder_http_error',
-                'CRM returned HTTP ' . $code . ' | Body: ' . substr( $body, 0, 300 )
+                __( 'CRM returned an unexpected response.', 'gigbuilder-tools' )
             );
         }
 
@@ -58,7 +58,7 @@ class Gigbuilder_API_Client {
         if ( json_last_error() !== JSON_ERROR_NONE ) {
             return new WP_Error(
                 'gigbuilder_json_error',
-                'Invalid JSON response from CRM | Raw: ' . substr( $body, 0, 300 )
+                __( 'Invalid response from CRM.', 'gigbuilder-tools' )
             );
         }
 

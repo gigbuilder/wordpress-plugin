@@ -206,15 +206,16 @@
 }
 
 /* App buttons (Client Center, Guest Requests) */
-.gigbuilder-app-button,
-.gigbuilder-app-button:link,
-.gigbuilder-app-button:visited,
-.gigbuilder-app-button:hover,
-.gigbuilder-app-button:active,
-.gigbuilder-app-button:focus {
+a.gigbuilder-app-button,
+a.gigbuilder-app-button:link,
+a.gigbuilder-app-button:visited,
+a.gigbuilder-app-button:hover,
+a.gigbuilder-app-button:active,
+a.gigbuilder-app-button:focus {
     display: inline-block;
     padding: 0.75em 2em;
     border: none;
+    border-bottom: none;
     border-radius: 4px;
     font-size: 1em;
     font-weight: 600;
@@ -223,9 +224,10 @@
     color: #fff !important;
     text-decoration: none !important;
     text-align: center;
+    box-shadow: none !important;
 }
 
-.gigbuilder-app-button:hover {
+a.gigbuilder-app-button:hover {
     background: #135e96;
 }
 
