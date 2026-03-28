@@ -36,33 +36,36 @@
         var validationEl  = widget.querySelector( '.gigbuilder-validation-errors' );
         var modeRadios    = widget.querySelectorAll( 'input[name="gb-date-mode"]' );
 
-        // Populate dropdowns
+        // Populate dropdowns (only present in datepicker shortcode)
         var monthSelect = document.getElementById( 'gb-date-month' );
         var daySelect   = document.getElementById( 'gb-date-day' );
         var yearSelect  = document.getElementById( 'gb-date-year' );
 
         var monthNames = ['January','February','March','April','May','June',
                           'July','August','September','October','November','December'];
-        for ( var m = 0; m < monthNames.length; m++ ) {
-            var opt = document.createElement( 'option' );
-            opt.value = String( m + 1 );
-            opt.textContent = monthNames[m];
-            monthSelect.appendChild( opt );
-        }
 
-        for ( var d = 1; d <= 31; d++ ) {
-            var opt = document.createElement( 'option' );
-            opt.value = String( d );
-            opt.textContent = String( d );
-            daySelect.appendChild( opt );
-        }
+        if ( monthSelect && daySelect && yearSelect ) {
+            for ( var m = 0; m < monthNames.length; m++ ) {
+                var opt = document.createElement( 'option' );
+                opt.value = String( m + 1 );
+                opt.textContent = monthNames[m];
+                monthSelect.appendChild( opt );
+            }
 
-        var currentYear = new Date().getFullYear();
-        for ( var y = currentYear; y <= currentYear + 3; y++ ) {
-            var opt = document.createElement( 'option' );
-            opt.value = String( y );
-            opt.textContent = String( y );
-            yearSelect.appendChild( opt );
+            for ( var d = 1; d <= 31; d++ ) {
+                var opt = document.createElement( 'option' );
+                opt.value = String( d );
+                opt.textContent = String( d );
+                daySelect.appendChild( opt );
+            }
+
+            var currentYear = new Date().getFullYear();
+            for ( var y = currentYear; y <= currentYear + 3; y++ ) {
+                var opt = document.createElement( 'option' );
+                opt.value = String( y );
+                opt.textContent = String( y );
+                yearSelect.appendChild( opt );
+            }
         }
 
         // Toggle date mode (only if calendar variant)
@@ -85,10 +88,19 @@
          */
         function getSelectedDate() {
             var modeEl = widget.querySelector( 'input[name="gb-date-mode"]:checked' );
-            var mode = modeEl ? modeEl.value : 'dropdowns';
+            var calendarInput = document.getElementById( 'gb-date-calendar' );
+            var mode;
+
+            if ( modeEl ) {
+                mode = modeEl.value;
+            } else if ( calendarInput ) {
+                mode = 'calendar';
+            } else {
+                mode = 'dropdowns';
+            }
 
             if ( mode === 'calendar' ) {
-                var val = document.getElementById( 'gb-date-calendar' ).value;
+                var val = calendarInput.value;
                 if ( ! val ) return '';
                 var parts = val.split( '-' );
                 return parts[1] + '/' + parts[2] + '/' + parts[0];
