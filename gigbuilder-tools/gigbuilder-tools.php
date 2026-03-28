@@ -3,7 +3,7 @@
  * Plugin Name: Gigbuilder Tools
  * Plugin URI: https://gigbuilder.com
  * Description: Widgets and tools for connecting WordPress sites to Gigbuilder CRM.
- * Version: 1.5.0
+ * Version: 1.6.0
  * Author: Gigbuilder
  * Author URI: https://github.com/gigbuilder
  * License: GPL v2 or later

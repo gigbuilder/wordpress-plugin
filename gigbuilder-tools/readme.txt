@@ -4,7 +4,7 @@ Tags: crm, booking, availability, events, entertainment
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,13 +16,15 @@ Gigbuilder Tools lets CRM managers place interactive widgets on their WordPress 
 
 **Available Widgets:**
 
-* **Check Availability (Calendar)** — Full date checker with calendar picker and booking form
-* **Check Availability (Dropdowns)** — Compact date checker with month/day/year dropdowns
+* **Check Availability** — Date checker with booking form (three layout styles)
 * **Client Center** — Button to open the Gigbuilder Client Center
 * **Guest Requests** — Button to open the Guest Music Request page
 
 **Features:**
 
+* Three widget styles: Structured Card, Stepped Flow, and Minimal Inline
+* Admin settings for style selection, date input type, and customizable text
+* Theme-neutral CSS — inherits your theme's fonts and colors automatically
 * CRM-defined booking forms rendered natively in your WordPress theme
 * Two-column responsive grid layout (single column on mobile)
 * Multiple field types: text, email, phone, select, radio, checkbox, time, duration, location, and more
@@ -41,10 +43,19 @@ Gigbuilder Tools lets CRM managers place interactive widgets on their WordPress 
 
 **Shortcodes:**
 
-* `[gigbuilder_availability]` — Check Availability with calendar
-* `[gigbuilder_datepicker]` — Check Availability with dropdowns
+* `[gigbuilder_availability]` — Check Availability widget (style and date input configured in settings or via attributes)
 * `[gigbuilder_clientcenter]` — Client Center button
 * `[gigbuilder_guestrequests]` — Guest Requests button
+
+**Shortcode Attributes (optional overrides):**
+
+* `style` — `card`, `stepped`, or `minimal`
+* `date_input` — `calendar` or `dropdowns`
+* `heading` — Custom heading text
+* `subheading` — Custom subheading text
+* `button_text` — Custom button text
+
+Example: `[gigbuilder_availability style="minimal" heading="Book Us Today"]`
 
 == Frequently Asked Questions ==
 
@@ -62,6 +73,14 @@ Yes. WordPress acts as a proxy between the visitor and your CRM. The CRM server 
 
 == Changelog ==
 
+= 1.6.0 =
+* Three selectable widget styles: Structured Card, Stepped Flow, Minimal Inline
+* Widget Appearance settings section with customizable text fields
+* Merged calendar and dropdown shortcodes into single [gigbuilder_availability]
+* Theme-neutral CSS using rgba/inherit for universal theme compatibility
+* Shortcode attribute overrides for per-page customization
+* Configurable submit button text on booking forms
+
 = 1.5.0 =
 * Initial public release
 * Check Availability widget (calendar and dropdown variants)
@@ -73,6 +92,9 @@ Yes. WordPress acts as a proxy between the visitor and your CRM. The CRM server 
 * Session-based submission locking
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+Three new widget styles with admin settings. Theme-neutral CSS for better compatibility.
 
 = 1.5.0 =
 Initial release.
