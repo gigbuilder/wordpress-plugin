@@ -5,7 +5,7 @@
  * Description: Widgets and tools for connecting WordPress sites to Gigbuilder CRM.
  * Version: 1.5.0
  * Author: Gigbuilder
- * Author URI: https://gigbuilder.com
+ * Author URI: https://github.com/gigbuilder
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: gigbuilder-tools
