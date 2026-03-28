@@ -14,6 +14,7 @@ class Gigbuilder_Settings {
         add_action( 'admin_menu', array( __CLASS__, 'add_menu' ) );
         add_action( 'wp_ajax_gigbuilder_authenticate', array( __CLASS__, 'ajax_authenticate' ) );
         add_action( 'wp_ajax_gigbuilder_disconnect', array( __CLASS__, 'ajax_disconnect' ) );
+        add_action( 'wp_ajax_gigbuilder_save_appearance', array( __CLASS__, 'ajax_save_appearance' ) );
     }
 
     public static function add_menu() {
@@ -116,6 +117,64 @@ class Gigbuilder_Settings {
     }
 
     /**
+     * AJAX: Save widget appearance settings.
+     */
+    public static function ajax_save_appearance() {
+        check_ajax_referer( 'gigbuilder_settings', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Permission denied.' ) );
+        }
+
+        $settings = get_option( self::$option_name, array() );
+
+        $allowed_styles = array( 'card', 'stepped', 'minimal' );
+        $allowed_inputs = array( 'calendar', 'dropdowns' );
+
+        $style = sanitize_text_field( $_POST['widget_style'] ?? 'card' );
+        $settings['widget_style'] = in_array( $style, $allowed_styles, true ) ? $style : 'card';
+
+        $input = sanitize_text_field( $_POST['date_input'] ?? 'calendar' );
+        $settings['date_input'] = in_array( $input, $allowed_inputs, true ) ? $input : 'calendar';
+
+        $settings['heading_text']    = sanitize_text_field( $_POST['heading_text'] ?? '' );
+        $settings['subheading_text'] = sanitize_text_field( $_POST['subheading_text'] ?? '' );
+        $settings['button_text']     = sanitize_text_field( $_POST['button_text'] ?? '' );
+        $settings['submit_text']     = sanitize_text_field( $_POST['submit_text'] ?? '' );
+
+        update_option( self::$option_name, $settings );
+
+        wp_send_json_success( array( 'message' => 'Appearance settings saved.' ) );
+    }
+
+    /**
+     * Get appearance setting with default fallback.
+     */
+    public static function get_appearance( $key ) {
+        $settings = get_option( self::$option_name, array() );
+        $defaults = array(
+            'widget_style'    => 'card',
+            'date_input'      => 'calendar',
+            'heading_text'    => '',
+            'subheading_text' => '',
+            'button_text'     => '',
+            'submit_text'     => '',
+        );
+        $value = $settings[ $key ] ?? $defaults[ $key ] ?? '';
+        return $value;
+    }
+
+    /**
+     * Get heading text default based on style.
+     */
+    public static function get_heading_default( $style = '' ) {
+        if ( empty( $style ) ) {
+            $style = self::get_appearance( 'widget_style' );
+        }
+        return $style === 'minimal' ? __( "When's the big day?", 'gigbuilder-tools' ) : __( 'Check Availability', 'gigbuilder-tools' );
+    }
+
+    /**
      * Render the settings page.
      */
     public static function render_page() {
@@ -158,6 +217,95 @@ class Gigbuilder_Settings {
                 </table>
                 <p>
                     <button type="button" class="button" id="gigbuilder-disconnect-btn">Disconnect</button>
+                </p>
+            </div>
+
+            <!-- Widget Appearance -->
+            <?php
+            $widget_style    = self::get_appearance( 'widget_style' );
+            $date_input      = self::get_appearance( 'date_input' );
+            $heading_text    = self::get_appearance( 'heading_text' );
+            $subheading_text = self::get_appearance( 'subheading_text' );
+            $button_text     = self::get_appearance( 'button_text' );
+            $submit_text     = self::get_appearance( 'submit_text' );
+            ?>
+            <div id="gigbuilder-appearance" style="<?php echo $authenticated ? '' : 'display:none;'; ?>">
+                <h2>Widget Appearance</h2>
+                <p>Choose a layout style and customize the text for your availability widget.</p>
+
+                <table class="form-table">
+                    <tr>
+                        <th>Widget Style</th>
+                        <td>
+                            <fieldset>
+                                <label style="display:block;margin-bottom:8px;">
+                                    <input type="radio" name="gigbuilder_widget_style" value="card" <?php checked( $widget_style, 'card' ); ?> />
+                                    <strong>Structured Card</strong> &mdash; Contained card with clear visual hierarchy
+                                </label>
+                                <label style="display:block;margin-bottom:8px;">
+                                    <input type="radio" name="gigbuilder_widget_style" value="stepped" <?php checked( $widget_style, 'stepped' ); ?> />
+                                    <strong>Stepped Flow</strong> &mdash; Multi-step wizard with numbered progress
+                                </label>
+                                <label style="display:block;margin-bottom:8px;">
+                                    <input type="radio" name="gigbuilder_widget_style" value="minimal" <?php checked( $widget_style, 'minimal' ); ?> />
+                                    <strong>Minimal Inline</strong> &mdash; Compact search-bar style
+                                </label>
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date Input</th>
+                        <td>
+                            <fieldset>
+                                <label style="margin-right:20px;">
+                                    <input type="radio" name="gigbuilder_date_input" value="calendar" <?php checked( $date_input, 'calendar' ); ?> />
+                                    Calendar picker
+                                </label>
+                                <label>
+                                    <input type="radio" name="gigbuilder_date_input" value="dropdowns" <?php checked( $date_input, 'dropdowns' ); ?> />
+                                    Month / Day / Year dropdowns
+                                </label>
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="gigbuilder-heading-text">Heading</label></th>
+                        <td>
+                            <input type="text" id="gigbuilder-heading-text" class="regular-text"
+                                   value="<?php echo esc_attr( $heading_text ); ?>"
+                                   placeholder="<?php echo esc_attr( self::get_heading_default( $widget_style ) ); ?>" />
+                            <p class="description">Leave blank for style default.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="gigbuilder-subheading-text">Subheading</label></th>
+                        <td>
+                            <input type="text" id="gigbuilder-subheading-text" class="regular-text"
+                                   value="<?php echo esc_attr( $subheading_text ); ?>"
+                                   placeholder="<?php echo esc_attr__( 'Check if we\'re available for your event', 'gigbuilder-tools' ); ?>" />
+                            <p class="description">Shown below the heading. Most prominent in Minimal style.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="gigbuilder-button-text">Button Text</label></th>
+                        <td>
+                            <input type="text" id="gigbuilder-button-text" class="regular-text"
+                                   value="<?php echo esc_attr( $button_text ); ?>"
+                                   placeholder="<?php echo esc_attr__( 'Check Date', 'gigbuilder-tools' ); ?>" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="gigbuilder-submit-text">Submit Button Text</label></th>
+                        <td>
+                            <input type="text" id="gigbuilder-submit-text" class="regular-text"
+                                   value="<?php echo esc_attr( $submit_text ); ?>"
+                                   placeholder="<?php echo esc_attr__( 'Submit Request', 'gigbuilder-tools' ); ?>" />
+                        </td>
+                    </tr>
+                </table>
+                <p>
+                    <button type="button" class="button button-primary" id="gigbuilder-save-appearance-btn">Save Appearance</button>
+                    <span id="gigbuilder-appearance-spinner" class="spinner" style="float:none;"></span>
                 </p>
             </div>
 
@@ -246,10 +394,11 @@ class Gigbuilder_Settings {
         (function() {
             var nonce       = '<?php echo $nonce; ?>';
             var ajaxUrl     = '<?php echo admin_url( "admin-ajax.php" ); ?>';
-            var msgEl       = document.getElementById( 'gigbuilder-settings-message' );
-            var loginPanel  = document.getElementById( 'gigbuilder-login' );
-            var connPanel   = document.getElementById( 'gigbuilder-connected' );
-            var widgetsInfo = document.getElementById( 'gigbuilder-widgets-info' );
+            var msgEl        = document.getElementById( 'gigbuilder-settings-message' );
+            var loginPanel   = document.getElementById( 'gigbuilder-login' );
+            var connPanel    = document.getElementById( 'gigbuilder-connected' );
+            var widgetsInfo  = document.getElementById( 'gigbuilder-widgets-info' );
+            var appearPanel  = document.getElementById( 'gigbuilder-appearance' );
             var authBtn     = document.getElementById( 'gigbuilder-auth-btn' );
             var discBtn     = document.getElementById( 'gigbuilder-disconnect-btn' );
             var spinner     = document.getElementById( 'gigbuilder-auth-spinner' );
@@ -305,6 +454,7 @@ class Gigbuilder_Settings {
                         // Swap panels
                         loginPanel.style.display = 'none';
                         connPanel.style.display = '';
+                        appearPanel.style.display = '';
                         widgetsInfo.style.display = '';
 
                         // Clear password
@@ -333,9 +483,61 @@ class Gigbuilder_Settings {
                         if ( res.success ) {
                             showMsg( 'success', 'Disconnected from Gigbuilder CRM.' );
                             connPanel.style.display = 'none';
+                            appearPanel.style.display = 'none';
                             widgetsInfo.style.display = 'none';
                             loginPanel.style.display = '';
                         }
+                    });
+            });
+
+            // Appearance: update heading placeholder when style changes
+            var styleRadios  = document.querySelectorAll( 'input[name="gigbuilder_widget_style"]' );
+            var headingInput = document.getElementById( 'gigbuilder-heading-text' );
+            var headingDefaults = { card: 'Check Availability', stepped: 'Check Availability', minimal: "When's the big day?" };
+
+            for ( var i = 0; i < styleRadios.length; i++ ) {
+                styleRadios[i].addEventListener( 'change', function() {
+                    headingInput.placeholder = headingDefaults[ this.value ] || 'Check Availability';
+                });
+            }
+
+            // Save Appearance
+            var saveAppBtn   = document.getElementById( 'gigbuilder-save-appearance-btn' );
+            var appSpinner   = document.getElementById( 'gigbuilder-appearance-spinner' );
+
+            saveAppBtn.addEventListener( 'click', function() {
+                hideMsg();
+                saveAppBtn.disabled = true;
+                appSpinner.classList.add( 'is-active' );
+
+                var style = document.querySelector( 'input[name="gigbuilder_widget_style"]:checked' );
+                var input = document.querySelector( 'input[name="gigbuilder_date_input"]:checked' );
+
+                var fd = new FormData();
+                fd.append( 'action', 'gigbuilder_save_appearance' );
+                fd.append( 'nonce', nonce );
+                fd.append( 'widget_style', style ? style.value : 'card' );
+                fd.append( 'date_input', input ? input.value : 'calendar' );
+                fd.append( 'heading_text', headingInput.value );
+                fd.append( 'subheading_text', document.getElementById( 'gigbuilder-subheading-text' ).value );
+                fd.append( 'button_text', document.getElementById( 'gigbuilder-button-text' ).value );
+                fd.append( 'submit_text', document.getElementById( 'gigbuilder-submit-text' ).value );
+
+                fetch( ajaxUrl, { method: 'POST', body: fd } )
+                    .then( function( r ) { return r.json(); } )
+                    .then( function( res ) {
+                        saveAppBtn.disabled = false;
+                        appSpinner.classList.remove( 'is-active' );
+                        if ( res.success ) {
+                            showMsg( 'success', res.data.message );
+                        } else {
+                            showMsg( 'error', res.data.message );
+                        }
+                    })
+                    .catch( function() {
+                        saveAppBtn.disabled = false;
+                        appSpinner.classList.remove( 'is-active' );
+                        showMsg( 'error', 'Connection error. Please try again.' );
                     });
             });
         })();

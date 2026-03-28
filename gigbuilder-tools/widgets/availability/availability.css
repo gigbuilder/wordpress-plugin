@@ -1,46 +1,36 @@
-/* Gigbuilder Availability Widget */
+/* Gigbuilder Availability Widget — Three Styles */
+
+/* ==========================================
+   SHARED (all styles)
+   ========================================== */
 
 .gigbuilder-availability .gigbuilder-date-picker {
     margin-bottom: 1em;
 }
 
-.gigbuilder-date-mode {
-    display: flex;
-    gap: 1.5em;
-    margin-bottom: 0.75em;
-}
-
-.gigbuilder-date-mode label {
-    display: flex;
-    align-items: center;
-    gap: 0.3em;
-    cursor: pointer;
-    font-weight: normal;
-}
-
 .gigbuilder-date-calendar input[type="date"] {
-    padding: 0.5em;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    padding: 0.6em 0.75em;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    border-radius: 0.375em;
     font-size: 1em;
-    margin-bottom: 0.75em;
-    background: rgba(255, 255, 255, 0.95);
-    color: #222;
+    font-family: inherit;
+    background: rgba(128, 128, 128, 0.06);
+    color: inherit;
 }
 
 .gigbuilder-date-dropdowns {
     display: flex;
     gap: 0.5em;
-    margin-bottom: 0.75em;
 }
 
 .gigbuilder-date-dropdowns select {
-    padding: 0.5em;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    padding: 0.6em 0.75em;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    border-radius: 0.375em;
     font-size: 1em;
-    background: rgba(255, 255, 255, 0.95);
-    color: #222;
+    font-family: inherit;
+    background: rgba(128, 128, 128, 0.06);
+    color: inherit;
 }
 
 /* Selected date display */
@@ -60,10 +50,10 @@
 
 /* Validation errors */
 .gigbuilder-validation-errors {
-    background: rgba(244, 67, 54, 0.12);
-    color: #f44336;
-    border: 1px solid rgba(244, 67, 54, 0.3);
-    border-radius: 4px;
+    background: rgba(244, 67, 54, 0.08);
+    color: #c62828;
+    border: 1px solid rgba(244, 67, 54, 0.25);
+    border-radius: 0.375em;
     padding: 0.75em 1em;
     margin-bottom: 1em;
     font-size: 0.9em;
@@ -76,4 +66,356 @@
 
 .gigbuilder-validation-errors li {
     margin-bottom: 0.2em;
+}
+
+/* Subheading */
+.gigbuilder-subheading {
+    font-size: 0.95em;
+    opacity: 0.65;
+    margin: 0 0 1em;
+    line-height: 1.4;
+}
+
+/* Success state */
+.gigbuilder-success {
+    text-align: center;
+    padding: 2em 1em;
+}
+
+.gigbuilder-success-icon {
+    width: 3.5em;
+    height: 3.5em;
+    border-radius: 50%;
+    background: rgba(76, 175, 80, 0.12);
+    margin: 0 auto 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    color: #4caf50;
+}
+
+.gigbuilder-success-title {
+    font-size: 1.25em;
+    font-weight: 600;
+    margin-bottom: 0.35em;
+}
+
+.gigbuilder-success-message {
+    font-size: 0.95em;
+    opacity: 0.7;
+    margin-bottom: 0.75em;
+}
+
+.gigbuilder-success-date {
+    display: inline-block;
+    font-size: 1.05em;
+    font-weight: 600;
+    background: rgba(128, 128, 128, 0.08);
+    padding: 0.5em 1.25em;
+    border-radius: 0.5em;
+}
+
+/* ==========================================
+   STYLE A: CARD
+   ========================================== */
+
+.gigbuilder-style-card .gigbuilder-card {
+    background: rgba(128, 128, 128, 0.04);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: 0.75em;
+    padding: 1.75em;
+}
+
+.gigbuilder-style-card .gigbuilder-card-label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    opacity: 0.5;
+    margin-bottom: 1.25em;
+}
+
+.gigbuilder-style-card .gigbuilder-field-label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.45;
+    margin-bottom: 0.5em;
+}
+
+.gigbuilder-style-card .gigbuilder-date-row {
+    display: flex;
+    gap: 0.75em;
+    align-items: end;
+}
+
+.gigbuilder-style-card .gigbuilder-date-row .gigbuilder-date-calendar,
+.gigbuilder-style-card .gigbuilder-date-row .gigbuilder-date-dropdowns {
+    flex: 1;
+}
+
+.gigbuilder-style-card .gigbuilder-date-row .gigbuilder-date-calendar input[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.gigbuilder-style-card .gigbuilder-date-picker {
+    margin-bottom: 0;
+}
+
+.gigbuilder-style-card .gigbuilder-message {
+    margin-top: 1.25em;
+}
+
+.gigbuilder-style-card .gigbuilder-selected-date {
+    margin-top: 1.25em;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.gigbuilder-style-card .gigbuilder-form {
+    margin-top: 1.25em;
+    padding-top: 1.25em;
+    border-top: 1px solid rgba(128, 128, 128, 0.12);
+}
+
+/* ==========================================
+   STYLE B: STEPPED FLOW
+   ========================================== */
+
+.gigbuilder-style-stepped .gigbuilder-steps {
+    position: relative;
+}
+
+.gigbuilder-step {
+    display: flex;
+    gap: 1em;
+}
+
+.gigbuilder-step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.gigbuilder-step-number {
+    width: 2.25em;
+    height: 2.25em;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9em;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.gigbuilder-step-line {
+    width: 2px;
+    flex: 1;
+    min-height: 1.5em;
+    transition: background 0.3s ease;
+}
+
+.gigbuilder-step-content {
+    padding-bottom: 1.5em;
+    flex: 1;
+    min-width: 0;
+}
+
+.gigbuilder-step-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-top: 0.35em;
+    margin-bottom: 0.75em;
+    transition: opacity 0.3s ease;
+}
+
+/* Step states */
+.gigbuilder-step--active .gigbuilder-step-number {
+    background: rgba(128, 128, 128, 0.85);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.gigbuilder-step--active .gigbuilder-step-line {
+    background: rgba(128, 128, 128, 0.2);
+}
+
+.gigbuilder-step--completed .gigbuilder-step-number {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+}
+
+.gigbuilder-step--completed .gigbuilder-step-line {
+    background: #4caf50;
+}
+
+.gigbuilder-step--completed .gigbuilder-step-content {
+    padding-bottom: 0.5em;
+}
+
+.gigbuilder-step--upcoming .gigbuilder-step-number {
+    background: rgba(128, 128, 128, 0.12);
+    color: rgba(128, 128, 128, 0.4);
+}
+
+.gigbuilder-step--upcoming .gigbuilder-step-line {
+    background: rgba(128, 128, 128, 0.1);
+}
+
+.gigbuilder-step--upcoming .gigbuilder-step-title {
+    opacity: 0.35;
+}
+
+.gigbuilder-step--upcoming .gigbuilder-step-content {
+    padding-bottom: 0.75em;
+}
+
+/* Stepped: hide form/date content in upcoming steps */
+.gigbuilder-step--upcoming .gigbuilder-date-picker,
+.gigbuilder-step--upcoming .gigbuilder-form-container,
+.gigbuilder-step--upcoming .gigbuilder-validation-errors {
+    display: none;
+}
+
+/* Stepped: completed step summary */
+.gigbuilder-step--completed .gigbuilder-date-picker {
+    display: none;
+}
+
+.gigbuilder-step--completed .gigbuilder-step-title {
+    font-size: 1em;
+    opacity: 0.65;
+}
+
+.gigbuilder-step-date-summary {
+    font-size: 1.05em;
+    font-weight: 600;
+    margin-bottom: 0.25em;
+}
+
+.gigbuilder-step-status {
+    font-size: 0.85em;
+    color: #4caf50;
+    font-weight: 500;
+}
+
+.gigbuilder-style-stepped .gigbuilder-loading {
+    margin-left: 3.25em;
+}
+
+/* ==========================================
+   STYLE C: MINIMAL INLINE
+   ========================================== */
+
+.gigbuilder-style-minimal .gigbuilder-heading {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin: 0 0 0.2em;
+}
+
+.gigbuilder-style-minimal .gigbuilder-subheading {
+    margin-bottom: 1.25em;
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row {
+    display: flex;
+    border-radius: 0.6em;
+    overflow: hidden;
+    border: 1px solid rgba(128, 128, 128, 0.25);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-date-calendar {
+    flex: 1;
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-date-calendar input[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 0;
+    padding: 0.85em 1.1em;
+    font-size: 1em;
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-date-dropdowns {
+    flex: 1;
+    gap: 0;
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-date-dropdowns select {
+    border: none;
+    border-radius: 0;
+    border-right: 1px solid rgba(128, 128, 128, 0.15);
+    padding: 0.85em 0.75em;
+    flex: 1;
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-date-dropdowns select:last-child {
+    border-right: none;
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-button {
+    border: none;
+    border-radius: 0;
+    padding: 0.85em 1.5em;
+    white-space: nowrap;
+    font-weight: 600;
+    background: rgba(128, 128, 128, 0.12);
+    border-left: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-button:hover {
+    background: rgba(128, 128, 128, 0.2);
+}
+
+.gigbuilder-style-minimal .gigbuilder-arrow {
+    margin-left: 0.3em;
+}
+
+.gigbuilder-style-minimal .gigbuilder-date-picker {
+    margin-bottom: 0;
+}
+
+.gigbuilder-style-minimal .gigbuilder-message {
+    margin-top: 1em;
+}
+
+.gigbuilder-style-minimal .gigbuilder-selected-date {
+    margin-top: 1em;
+    font-size: 1.1em;
+    font-weight: 700;
+}
+
+.gigbuilder-style-minimal .gigbuilder-form {
+    margin-top: 1.25em;
+    padding-top: 1.25em;
+    border-top: 1px solid rgba(128, 128, 128, 0.12);
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 600px) {
+    .gigbuilder-style-card .gigbuilder-date-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gigbuilder-style-minimal .gigbuilder-search-row {
+        flex-direction: column;
+    }
+
+    .gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-button {
+        border-left: none;
+        border-top: 1px solid rgba(128, 128, 128, 0.15);
+    }
+
+    .gigbuilder-style-minimal .gigbuilder-search-row .gigbuilder-date-dropdowns {
+        flex-wrap: wrap;
+    }
 }

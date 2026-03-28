@@ -62,69 +62,184 @@ class Gigbuilder_Availability {
         ) );
     }
 
+    /**
+     * Render the date input (calendar or dropdowns).
+     */
+    private static function render_date_input( $date_input ) {
+        ob_start();
+        if ( $date_input === 'dropdowns' ) {
+            ?>
+            <div class="gigbuilder-date-dropdowns">
+                <select id="gb-date-month" class="gigbuilder-input">
+                    <option value=""><?php esc_html_e( 'Month', 'gigbuilder-tools' ); ?></option>
+                </select>
+                <select id="gb-date-day" class="gigbuilder-input">
+                    <option value=""><?php esc_html_e( 'Day', 'gigbuilder-tools' ); ?></option>
+                </select>
+                <select id="gb-date-year" class="gigbuilder-input">
+                    <option value=""><?php esc_html_e( 'Year', 'gigbuilder-tools' ); ?></option>
+                </select>
+            </div>
+            <?php
+        } else {
+            ?>
+            <div class="gigbuilder-date-calendar">
+                <input type="date" id="gb-date-calendar" class="gigbuilder-input" />
+            </div>
+            <?php
+        }
+        return ob_get_clean();
+    }
+
+    /**
+     * Render common elements (message, selected date, validation, form container, loading).
+     */
+    private static function render_common_elements() {
+        ob_start();
+        ?>
+        <div class="gigbuilder-message" style="display:none;"></div>
+        <div class="gigbuilder-selected-date" style="display:none;"></div>
+        <div class="gigbuilder-validation-errors" style="display:none;"></div>
+        <div class="gigbuilder-form-container"></div>
+        <div class="gigbuilder-loading" style="display:none;"><?php esc_html_e( 'Checking...', 'gigbuilder-tools' ); ?></div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Resolve shortcode attributes with settings fallbacks.
+     */
+    private static function resolve_atts( $atts, $shortcode_tag, $date_input_override = '' ) {
+        $style      = Gigbuilder_Settings::get_appearance( 'widget_style' );
+        $date_input = ! empty( $date_input_override ) ? $date_input_override : Gigbuilder_Settings::get_appearance( 'date_input' );
+
+        $heading_default = Gigbuilder_Settings::get_appearance( 'heading_text' );
+        if ( empty( $heading_default ) ) {
+            $heading_default = Gigbuilder_Settings::get_heading_default( $style );
+        }
+
+        $subheading_default = Gigbuilder_Settings::get_appearance( 'subheading_text' );
+        $button_default     = Gigbuilder_Settings::get_appearance( 'button_text' );
+        $submit_default     = Gigbuilder_Settings::get_appearance( 'submit_text' );
+
+        return shortcode_atts( array(
+            'style'       => $style,
+            'date_input'  => $date_input,
+            'heading'     => $heading_default,
+            'subheading'  => $subheading_default,
+            'button_text' => ! empty( $button_default ) ? $button_default : __( 'Check Date', 'gigbuilder-tools' ),
+            'submit_text' => ! empty( $submit_default ) ? $submit_default : __( 'Submit Request', 'gigbuilder-tools' ),
+        ), $atts, $shortcode_tag );
+    }
+
     public static function render_shortcode( $atts ) {
-        $atts = shortcode_atts( array(
-            'title'       => __( 'Check Availability', 'gigbuilder-tools' ),
-            'button_text' => __( 'Check Date', 'gigbuilder-tools' ),
-        ), $atts, 'gigbuilder_availability' );
+        $atts = self::resolve_atts( $atts, 'gigbuilder_availability' );
+
+        $style       = $atts['style'];
+        $date_input  = $atts['date_input'];
+        $heading     = $atts['heading'];
+        $subheading  = $atts['subheading'];
+        $button_text = $atts['button_text'];
+        $submit_text = $atts['submit_text'];
+
+        $date_html   = self::render_date_input( $date_input );
+        $common_html = self::render_common_elements();
 
         ob_start();
         ?>
-        <div class="gigbuilder-widget gigbuilder-availability" id="gigbuilder-availability">
-            <div class="gigbuilder-date-picker" style="display:none;">
-                <div class="gigbuilder-date-calendar">
-                    <input type="date" id="gb-date-calendar" class="gigbuilder-input" />
-                </div>
+        <div class="gigbuilder-widget gigbuilder-availability gigbuilder-style-<?php echo esc_attr( $style ); ?>"
+             id="gigbuilder-availability"
+             data-submit-text="<?php echo esc_attr( $submit_text ); ?>">
 
-                <button type="button" class="gigbuilder-button gigbuilder-check-btn">
-                    <?php echo esc_html( $atts['button_text'] ); ?>
-                </button>
+        <?php if ( $style === 'card' ) : ?>
+            <div class="gigbuilder-card">
+                <div class="gigbuilder-card-label"><?php echo esc_html( $heading ); ?></div>
+                <?php if ( ! empty( $subheading ) ) : ?>
+                    <p class="gigbuilder-subheading"><?php echo esc_html( $subheading ); ?></p>
+                <?php endif; ?>
+                <div class="gigbuilder-date-picker" style="display:none;">
+                    <div class="gigbuilder-field-label"><?php esc_html_e( 'Select Date', 'gigbuilder-tools' ); ?></div>
+                    <div class="gigbuilder-date-row">
+                        <?php echo $date_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                        <button type="button" class="gigbuilder-button gigbuilder-check-btn">
+                            <?php echo esc_html( $button_text ); ?>
+                        </button>
+                    </div>
+                </div>
+                <?php echo $common_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             </div>
 
-            <div class="gigbuilder-message" style="display:none;"></div>
-            <div class="gigbuilder-selected-date" style="display:none;"></div>
-            <div class="gigbuilder-validation-errors" style="display:none;"></div>
-            <div class="gigbuilder-form-container"></div>
-            <div class="gigbuilder-loading" style="display:none;">Checking...</div>
+        <?php elseif ( $style === 'stepped' ) : ?>
+            <div class="gigbuilder-steps">
+                <div class="gigbuilder-step gigbuilder-step--active" data-step="1">
+                    <div class="gigbuilder-step-indicator">
+                        <div class="gigbuilder-step-number">1</div>
+                        <div class="gigbuilder-step-line"></div>
+                    </div>
+                    <div class="gigbuilder-step-content">
+                        <div class="gigbuilder-step-title"><?php echo esc_html( $heading ); ?></div>
+                        <?php if ( ! empty( $subheading ) ) : ?>
+                            <p class="gigbuilder-subheading"><?php echo esc_html( $subheading ); ?></p>
+                        <?php endif; ?>
+                        <div class="gigbuilder-date-picker" style="display:none;">
+                            <?php echo $date_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                            <button type="button" class="gigbuilder-button gigbuilder-check-btn">
+                                <?php echo esc_html( $button_text ); ?>
+                            </button>
+                        </div>
+                        <div class="gigbuilder-message" style="display:none;"></div>
+                        <div class="gigbuilder-selected-date" style="display:none;"></div>
+                    </div>
+                </div>
+                <div class="gigbuilder-step gigbuilder-step--upcoming" data-step="2">
+                    <div class="gigbuilder-step-indicator">
+                        <div class="gigbuilder-step-number">2</div>
+                        <div class="gigbuilder-step-line"></div>
+                    </div>
+                    <div class="gigbuilder-step-content">
+                        <div class="gigbuilder-step-title"><?php esc_html_e( 'Your details', 'gigbuilder-tools' ); ?></div>
+                        <div class="gigbuilder-validation-errors" style="display:none;"></div>
+                        <div class="gigbuilder-form-container"></div>
+                    </div>
+                </div>
+                <div class="gigbuilder-step gigbuilder-step--upcoming" data-step="3">
+                    <div class="gigbuilder-step-indicator">
+                        <div class="gigbuilder-step-number">3</div>
+                    </div>
+                    <div class="gigbuilder-step-content">
+                        <div class="gigbuilder-step-title"><?php esc_html_e( 'Confirmation', 'gigbuilder-tools' ); ?></div>
+                    </div>
+                </div>
+                <div class="gigbuilder-loading" style="display:none;"><?php esc_html_e( 'Checking...', 'gigbuilder-tools' ); ?></div>
+            </div>
+
+        <?php else : // minimal ?>
+            <h3 class="gigbuilder-heading"><?php echo esc_html( $heading ); ?></h3>
+            <?php if ( ! empty( $subheading ) ) : ?>
+                <p class="gigbuilder-subheading"><?php echo esc_html( $subheading ); ?></p>
+            <?php endif; ?>
+            <div class="gigbuilder-date-picker" style="display:none;">
+                <div class="gigbuilder-search-row">
+                    <?php echo $date_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <button type="button" class="gigbuilder-button gigbuilder-check-btn">
+                        <?php echo esc_html( $button_text ); ?> <span class="gigbuilder-arrow">&rarr;</span>
+                    </button>
+                </div>
+            </div>
+            <?php echo $common_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+
+        <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
     }
 
+    /**
+     * Deprecated: use [gigbuilder_availability date_input="dropdowns"] instead.
+     */
     public static function render_datepicker_shortcode( $atts ) {
-        $atts = shortcode_atts( array(
-            'button_text' => __( 'Check Date', 'gigbuilder-tools' ),
-        ), $atts, 'gigbuilder_datepicker' );
-
-        ob_start();
-        ?>
-        <div class="gigbuilder-widget gigbuilder-availability" id="gigbuilder-availability">
-            <div class="gigbuilder-date-picker" style="display:none;">
-                <div class="gigbuilder-date-dropdowns" style="display:flex;">
-                    <select id="gb-date-month" class="gigbuilder-input">
-                        <option value="">Month</option>
-                    </select>
-                    <select id="gb-date-day" class="gigbuilder-input">
-                        <option value="">Day</option>
-                    </select>
-                    <select id="gb-date-year" class="gigbuilder-input">
-                        <option value="">Year</option>
-                    </select>
-                </div>
-
-                <button type="button" class="gigbuilder-button gigbuilder-check-btn">
-                    <?php echo esc_html( $atts['button_text'] ); ?>
-                </button>
-            </div>
-
-            <div class="gigbuilder-message" style="display:none;"></div>
-            <div class="gigbuilder-selected-date" style="display:none;"></div>
-            <div class="gigbuilder-validation-errors" style="display:none;"></div>
-            <div class="gigbuilder-form-container"></div>
-            <div class="gigbuilder-loading" style="display:none;">Checking...</div>
-        </div>
-        <?php
-        return ob_get_clean();
+        $atts = self::resolve_atts( $atts, 'gigbuilder_datepicker', 'dropdowns' );
+        return self::render_shortcode( $atts );
     }
 
     public static function render_clientcenter_shortcode( $atts ) {
@@ -176,7 +291,11 @@ class Gigbuilder_Availability {
 
         // If available, render the form server-side and include the HTML
         if ( $result['status'] === 'available' && ! empty( $result['form'] ) ) {
-            $result['formHtml'] = Gigbuilder_Form_Renderer::render( $result['form'], $date );
+            $submit_text = Gigbuilder_Settings::get_appearance( 'submit_text' );
+            if ( empty( $submit_text ) ) {
+                $submit_text = __( 'Submit Request', 'gigbuilder-tools' );
+            }
+            $result['formHtml'] = Gigbuilder_Form_Renderer::render( $result['form'], $date, $submit_text );
         }
 
         wp_send_json_success( $result );

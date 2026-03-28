@@ -12,7 +12,10 @@ class Gigbuilder_Form_Renderer {
      * @param string $date      The selected date to include as hidden field.
      * @return string HTML form markup.
      */
-    public static function render( $form_data, $date ) {
+    public static function render( $form_data, $date, $submit_text = '' ) {
+        if ( empty( $submit_text ) ) {
+            $submit_text = __( 'Submit', 'gigbuilder-tools' );
+        }
         $html = '<form class="gigbuilder-form" data-date="' . esc_attr( $date ) . '">';
 
         if ( ! empty( $form_data['title'] ) ) {
@@ -68,7 +71,7 @@ class Gigbuilder_Form_Renderer {
         }
 
         $html .= '<div class="gigbuilder-field gigbuilder-field--submit">';
-        $html .= '<button type="submit" class="gigbuilder-submit">' . esc_html__( 'Submit', 'gigbuilder-tools' ) . '</button>';
+        $html .= '<button type="submit" class="gigbuilder-submit">' . esc_html( $submit_text ) . '</button>';
         $html .= '</div>';
         $html .= '</form>';
 

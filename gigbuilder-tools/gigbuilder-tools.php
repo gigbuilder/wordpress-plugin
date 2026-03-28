@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GIGBUILDER_TOOLS_VERSION', '1.5.3' );
+define( 'GIGBUILDER_TOOLS_VERSION', '1.6.0' );
 define( 'GIGBUILDER_TOOLS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'GIGBUILDER_TOOLS_URL', plugin_dir_url( __FILE__ ) );
 
