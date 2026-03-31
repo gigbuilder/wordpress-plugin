@@ -1,10 +1,10 @@
 === Gigbuilder Tools ===
 Contributors: gigbuilder
-Tags: crm, booking, availability, events, entertainment
+Tags: crm, booking, availability, events, entertainment, chatbot, ai
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,8 @@ Gigbuilder Tools lets CRM managers place interactive widgets on their WordPress 
 * **Check Availability** — Date checker with booking form (three layout styles)
 * **Client Center** — Button to open the Gigbuilder Client Center
 * **Guest Requests** — Button to open the Guest Music Request page
+* **AI Chat (Inline)** — Embedded AI chat widget powered by your n8n agent
+* **AI Chat (Popup)** — Floating chat bubble with glass morphism design
 
 **Features:**
 
@@ -32,6 +34,10 @@ Gigbuilder Tools lets CRM managers place interactive widgets on their WordPress 
 * Client-side validation with missing field list
 * Session-based duplicate submission prevention
 * Secure server-side proxy — visitor browsers never connect directly to your CRM
+* AI Chat widget with inline and popup modes
+* Speech recognition and text-to-speech for voice conversations
+* Chat settings: company name, avatar, welcome message, launcher text
+* Dark glass morphism popup design that works with any theme
 
 == Installation ==
 
@@ -46,6 +52,8 @@ Gigbuilder Tools lets CRM managers place interactive widgets on their WordPress 
 * `[gigbuilder_availability]` — Check Availability widget (style and date input configured in settings or via attributes)
 * `[gigbuilder_clientcenter]` — Client Center button
 * `[gigbuilder_guestrequests]` — Guest Requests button
+* `[gigbuilder_chat]` — AI Chat (inline, embedded in page)
+* `[gigbuilder_chat_popup]` — AI Chat (floating popup bubble)
 
 **Shortcode Attributes (optional overrides):**
 
@@ -73,6 +81,14 @@ Yes. WordPress acts as a proxy between the visitor and your CRM. The CRM server 
 
 == Changelog ==
 
+= 1.7.0 =
+* AI Chat widget with inline and popup modes
+* Speech recognition and text-to-speech support
+* Chat Widget settings section in admin (webhook URL, company name, avatar, welcome message)
+* Server-side proxy for n8n webhook — endpoint URL never exposed to visitors
+* Dark glass morphism popup design, theme-neutral inline mode
+* Retry logic with status messages for slow AI responses
+
 = 1.6.0 =
 * Three selectable widget styles: Structured Card, Stepped Flow, Minimal Inline
 * Widget Appearance settings section with customizable text fields
@@ -92,6 +108,9 @@ Yes. WordPress acts as a proxy between the visitor and your CRM. The CRM server 
 * Session-based submission locking
 
 == Upgrade Notice ==
+
+= 1.7.0 =
+AI Chat widget with voice support. Configure in Settings → Gigbuilder Tools.
 
 = 1.6.0 =
 Three new widget styles with admin settings. Theme-neutral CSS for better compatibility.

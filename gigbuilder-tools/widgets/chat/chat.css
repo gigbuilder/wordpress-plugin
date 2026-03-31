@@ -1,0 +1,503 @@
+/* =============================================
+   Gigbuilder Chat Widget
+   Popup: self-contained dark glass morphism
+   Inline: inherits WordPress theme colors
+   All sizes in px — class-based selectors for multi-instance
+   ============================================= */
+
+:root {
+    --gb-primary: #e06666;
+    --gb-primary-hover: #db4061;
+    --gb-radius: 20px;
+    --gb-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* =============================================
+   SHARED STYLES
+   ============================================= */
+
+.gb-messages {
+    flex: 1 1 0%;
+    min-height: 0;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gb-input-bar {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+    padding: 12px 16px;
+    align-items: center;
+}
+.gb-input-bar textarea.gb-input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    resize: none;
+    min-height: 40px;
+    max-height: 120px;
+    font-size: 15px;
+    font-family: var(--gb-font);
+    line-height: 1.4;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.gb-msg {
+    margin-bottom: 0;
+    padding: 14px 18px;
+    border-radius: var(--gb-radius);
+    max-width: 85%;
+    font-family: var(--gb-font);
+    font-size: 16px;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+.gb-msg p { margin: 4px 0; }
+.gb-msg p:first-child { margin-top: 0; }
+.gb-msg p:last-child { margin-bottom: 0; }
+
+.gb-user {
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+}
+.gb-bot {
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+}
+
+/* ── Send Button ── */
+.gb-send-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--gb-primary);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.1s ease;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(224, 102, 102, 0.3);
+    position: relative;
+    padding: 0;
+}
+.gb-send-btn::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 0 7px 12px;
+    border-color: transparent transparent transparent #fff;
+    margin-left: 3px;
+}
+.gb-send-btn:hover {
+    background: var(--gb-primary-hover);
+    transform: scale(1.05);
+}
+.gb-send-btn:active {
+    transform: scale(0.95);
+}
+
+/* ── Mic Button ── */
+.gb-mic-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+}
+.gb-mic-btn::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 16px;
+    border-radius: 5px;
+    background: currentColor;
+    position: absolute;
+    top: 7px;
+}
+.gb-mic-btn::after {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 10px;
+    border: 2px solid currentColor;
+    border-top: none;
+    border-radius: 0 0 9px 9px;
+    position: absolute;
+    bottom: 7px;
+    box-sizing: border-box;
+}
+.gb-mic-btn.listening {
+    animation: gbMicPulse 1.5s infinite ease-in-out;
+    background: var(--gb-primary) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+}
+@keyframes gbMicPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+
+/* ── Typing Bubble ── */
+.gb-typing-bubble {
+    padding: 12px 16px;
+    border-radius: var(--gb-radius);
+    border-bottom-left-radius: 4px;
+    display: flex;
+    gap: 5px;
+    width: fit-content;
+    align-self: flex-start;
+}
+.gb-typing-bubble span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    animation: gbTyping 1.4s infinite ease-in-out both;
+}
+.gb-typing-bubble span:nth-child(1) { animation-delay: 0s; }
+.gb-typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+.gb-typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes gbTyping {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+/* ── Avatar ── */
+.gb-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gb-primary), #20b69e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+/* ── Header Text ── */
+.gb-header-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+.gb-header-title {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.gb-header-subtitle {
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+/* ── Status Dot ── */
+.gb-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    flex-shrink: 0;
+}
+
+.hidden { display: none !important; }
+
+
+/* =============================================
+   INLINE MODE
+   ============================================= */
+
+.gb-widget-inline {
+    width: 100%;
+    max-width: 1200px;
+    height: 600px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 12px;
+    display: flex !important;
+    flex-direction: column !important;
+    font-family: var(--gb-font);
+    overflow: hidden;
+    background: inherit;
+}
+
+[data-mode="inline"] .gb-inline-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    flex-shrink: 0;
+}
+
+[data-mode="inline"] .gb-input-bar {
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+}
+[data-mode="inline"] textarea.gb-input {
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    background: rgba(128, 128, 128, 0.05);
+    color: inherit;
+}
+[data-mode="inline"] textarea.gb-input:focus {
+    border-color: var(--gb-primary);
+}
+[data-mode="inline"] textarea.gb-input::placeholder {
+    color: rgba(128, 128, 128, 0.6);
+}
+
+[data-mode="inline"] .gb-bot {
+    background: rgba(128, 128, 128, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    color: inherit;
+}
+[data-mode="inline"] .gb-bot,
+[data-mode="inline"] .gb-bot * {
+    color: inherit;
+}
+[data-mode="inline"] .gb-user {
+    background: var(--gb-primary);
+    color: #fff;
+}
+
+[data-mode="inline"] .gb-mic-btn {
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    background: rgba(128, 128, 128, 0.05);
+    color: inherit;
+}
+
+[data-mode="inline"] .gb-typing-bubble {
+    background: rgba(128, 128, 128, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+}
+[data-mode="inline"] .gb-typing-bubble span {
+    background: rgba(128, 128, 128, 0.5);
+}
+[data-mode="inline"] .gb-header-subtitle {
+    opacity: 0.7;
+}
+
+
+/* =============================================
+   POPUP MODE — dark glass morphism
+   ============================================= */
+
+.gb-launcher {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    min-width: 60px;
+    height: 60px;
+    padding: 0 20px;
+    background: #000;
+    color: #fff;
+    border-radius: 30px;
+    font-size: 16px;
+    font-family: var(--gb-font);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.2s ease, opacity 0.3s ease;
+    user-select: none;
+}
+.gb-launcher:hover {
+    background: var(--gb-primary);
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(224, 102, 102, 0.55);
+}
+.gb-launcher:active {
+    transform: scale(0.97);
+}
+.gb-launcher-icon {
+    font-size: 26px;
+    line-height: 1;
+}
+.gb-launcher-text {
+    font-size: 15px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.gb-launcher.gb-launcher-hiding {
+    animation: gbLauncherSpinOut 0.4s ease forwards;
+}
+.gb-launcher.gb-launcher-showing {
+    animation: gbLauncherSpinIn 0.4s ease forwards;
+}
+@keyframes gbLauncherSpinOut {
+    0%   { transform: scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+@keyframes gbLauncherSpinIn {
+    0%   { transform: scale(0) rotate(-360deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── Popup Window ── */
+.gb-popup {
+    position: fixed;
+    bottom: 96px;
+    right: 22px;
+    width: 420px;
+    height: 75vh;
+    max-height: 720px;
+    min-height: 400px;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    transform: translateY(30px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    z-index: 10000;
+}
+.gb-popup.hidden {
+    display: none !important;
+}
+.gb-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Widget body fills space between header and input */
+.gb-popup .gb-widget-body {
+    flex: 1 1 0%;
+    min-height: 0;
+    display: flex !important;
+    flex-direction: column !important;
+    background: transparent;
+    font-family: var(--gb-font);
+    overflow: hidden;
+}
+
+.gb-popup-header {
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px 24px 0 0;
+    flex-shrink: 0;
+}
+
+.gb-close-btn {
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+    flex-shrink: 0;
+}
+.gb-close-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
+}
+
+/* Popup colors */
+[data-mode="popup"] .gb-header-title { color: #fff; }
+[data-mode="popup"] .gb-header-subtitle { color: #cbd5e1; }
+
+[data-mode="popup"] .gb-input-bar {
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+[data-mode="popup"] textarea.gb-input {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.10);
+    color: #fff;
+}
+[data-mode="popup"] textarea.gb-input:focus {
+    border-color: var(--gb-primary);
+}
+[data-mode="popup"] textarea.gb-input::placeholder {
+    color: #94a3b8;
+}
+
+[data-mode="popup"] .gb-bot {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #fff;
+}
+[data-mode="popup"] .gb-bot,
+[data-mode="popup"] .gb-bot * { color: #fff; }
+[data-mode="popup"] .gb-user {
+    background: #000;
+    color: #fff;
+}
+
+[data-mode="popup"] .gb-mic-btn {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.10);
+    color: #94a3b8;
+}
+
+[data-mode="popup"] .gb-typing-bubble {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+[data-mode="popup"] .gb-typing-bubble span { background: #94a3b8; }
+
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 480px) {
+    .gb-popup {
+        width: 100%;
+        height: 100vh;
+        max-height: none;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+    .gb-popup-header {
+        border-radius: 0;
+    }
+}
